@@ -75,13 +75,12 @@ export default {
       summarizeCandidates(offerPromise, addIceComplete).then(summary => {
         const offerId = parseInt(Math.random() * 1000000000000).toString();
         const answerId = parseInt(Math.random() * 1000000000000).toString();
-        fetch("http://sipcup.azurewebsites.net/api/Answer/" + offerId, {
+        fetch("https://sipcup.azurewebsites.net/api/Answer/" + offerId, {
           method: "POST",
           mode: "cors",
           body: JSON.stringify(summary)
         }).then(posted => {
           const peerUrl = `${window.location.href}#${offerId}:${answerId}`;
-          console.log("Resolving offer", peerUrl)
           resolve({
             url: peerUrl,
             svg: svg2url(qrcode(peerUrl))
@@ -89,7 +88,7 @@ export default {
         });
 
         const interval = setInterval(() => {
-          fetch("http://sipcup.azurewebsites.net/api/Answer/" + answerId, {
+          fetch("https://sipcup.azurewebsites.net/api/Answer/" + answerId, {
             method: "GET",
             mode: "cors"
           })
@@ -127,7 +126,7 @@ export default {
         window.location.hash.slice(1)
       ).split(":");
 
-      fetch("http://sipcup.azurewebsites.net/api/Answer/" + offerId, {
+      fetch("https://sipcup.azurewebsites.net/api/Answer/" + offerId, {
         method: "GET",
         mode: "cors"
       })
@@ -157,7 +156,7 @@ export default {
           answerConnection.onicecandidate = addIce;
 
           summarizeCandidates(answerPromise, addIceComplete).then(summary => {
-            fetch("http://sipcup.azurewebsites.net/api/Answer/" + answerId, {
+            fetch("https://sipcup.azurewebsites.net/api/Answer/" + answerId, {
               method: "POST",
               mode: "cors",
               body: JSON.stringify(summary)
