@@ -45,7 +45,10 @@ function OfferArea(props) {
       props.onChannel(props.offerId, c);
     });
 
-    return () => {};
+    return () => {
+      console.log("Cleanup", props)
+      PeerManager.cancelOffer(offer);
+    };
   }, [props.offerId, props.role]);
 
   if (!offerDetails.completed) {
@@ -66,6 +69,7 @@ function OfferApp() {
   const externalEvents = useRef(new EventEmitter());
   const [channelMessage, setChannelMessage] = useState("");
   const [otherPlayersCount, setOtherPlayersCount] = useState(0);
+  const [started, setStarted] = useState(false);
   const seed = useRef(Math.random());
 
   const broadcastAction = action => {
@@ -105,43 +109,48 @@ function OfferApp() {
 
   return (
     <div className="App">
-      <div className="offer-lkk">
-        <div className="player-card">
-          <OfferArea
-            offerId={0}
-            role="red-team"
-            className="player-icon red"
-            offerImage="assets/player.004.svg"
-            onChannel={gotChannel}
-          />
-          Red Captain
+      {!started && (
+        <div className="offer-lkk">
+          <div className="player-card">
+            <OfferArea
+              offerId={0}
+              role="red-team"
+              className="player-icon red"
+              offerImage="assets/player.004.svg"
+              onChannel={gotChannel}
+            />
+            Red Captain
+          </div>
+          <div className="player-card">
+            <OfferArea
+              offerId={1}
+              role="blue-team"
+              className="player-icon blue"
+              offerImage="assets/player.005.svg"
+              onChannel={gotChannel}
+            />
+            Blue Captain
+          </div>
+          <div className="player-card">
+            <OfferArea
+              offerId={2 + otherPlayersCount}
+              role="other-player"
+              className="player-icon"
+              offerImage="assets/player.003.svg"
+              onChannel={gotChannel}
+            />
+            Other Players {otherPlayersCount > 0 && ` (${otherPlayersCount})`}
+          </div>
+          <button onClick={e => setStarted(true)}>Start Game</button>
         </div>
-        <div className="player-card">
-          <OfferArea
-            offerId={1}
-            role="blue-team"
-            className="player-icon blue"
-            offerImage="assets/player.005.svg"
-            onChannel={gotChannel}
-          />
-          Blue Captain
-        </div>
-        <div className="player-card">
-          <OfferArea
-            offerId={2 + otherPlayersCount}
-            role="other-player"
-            className="player-icon"
-            offerImage="assets/player.003.svg"
-            onChannel={gotChannel}
-          />
-          Other Players {otherPlayersCount > 0 && ` (${otherPlayersCount})`}
-        </div>
-      </div>
-      <GameBoard
-        initialSeed={seed.current}
-        role={"other-player"}
-        broadcastAction={broadcastAction}
-        externalEvents={externalEvents.current}></GameBoard>
+      )}
+      {started && (
+        <GameBoard
+          initialSeed={seed.current}
+          role={"other-player"}
+          broadcastAction={broadcastAction}
+          externalEvents={externalEvents.current}></GameBoard>
+      )}
     </div>
   );
 }
@@ -224,7 +233,7 @@ const GameBoard = props => {
     }
   }, initialGameState);
 
-  const [spymaster, setSpymaster] = useState(false)
+  const [spymaster, setSpymaster] = useState(false);
 
   const seed = props.initialSeed || gameState.seed;
   const colors = pickColors(seed);
@@ -238,7 +247,7 @@ const GameBoard = props => {
       color: colors[i]
     }));
 
-    console.log("W", words)
+  console.log("W", words);
 
   useEffect(() => {
     if (!props.externalEvents) return;
@@ -256,17 +265,15 @@ const GameBoard = props => {
   return (
     <div className="grid-container">
       <div className="header">
-        <button onClick={e => setSpymaster(!spymaster)}>{spymaster? "Player View" : "Spymaster View"}</button>
+        <button onClick={e => setSpymaster(!spymaster)}>
+          {spymaster ? "Player View" : "Spymaster View"}
+        </button>
       </div>
       {seed &&
         words.map(({ word, revealed, color }, i) => (
           <p
-            className={`card ${color} c${i} ${
-              revealed ? "revealed" : "hidden"
-            }
-            ${
-              spymaster ? 'spymaster' : 'non-spymaster'
-            }
+            className={`card ${color} c${i} ${revealed ? "revealed" : "hidden"}
+            ${spymaster ? "spymaster" : "non-spymaster"}
             `}
             onClick={e =>
               dispatch({

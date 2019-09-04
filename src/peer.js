@@ -46,6 +46,7 @@ const summarizeCandidates = (sdpPromise, icePromise) =>
   }));
 
 const outstandingChannels = new Map();
+const outstandingIntervals = new Map();
 
 export default {
   getRole() {
@@ -54,6 +55,13 @@ export default {
 
   channelFrom(req) {
     return outstandingChannels.get(req);
+  },
+
+  cancelOffer(req) {
+    console.log("Cleanup", req, outstandingIntervals)
+    if (outstandingIntervals.get(req))
+      clearInterval(outstandingIntervals.get(req));
+    return true
   },
 
   generateOffer(role) {
@@ -107,6 +115,8 @@ export default {
               }
             });
         }, answerPollInterval);
+
+        outstandingIntervals.set(generatePromise, interval);
       });
     });
 

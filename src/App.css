@@ -200,20 +200,30 @@ p {
         max-width: calc(100% - 20px);
         max-height: 100%;
         grid-gap: 0px;
-        grid-template-rows: 1em 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1em;
+        grid-template-rows: 2em 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1em;
         grid-template-columns: 100%;
-
         grid-template-areas: "header" "c00" "c01" "c02" "c03" "c04" "c10" "c11" "c12" "c13" "c14" "c20" "c21" "c22" "c23" "c24" "c30" "c31" "c32" "c33" "c34" "c40" "c41" "c42" "c43" "c44" "footer";
-        background: red;
     }
-    div.grid-container > div.w {
-        font-size: 1em;
-        display: grid;
-    }
+    .header button {margin-bottom: 1em;}
 
-    .inn {
+    .card {
         font-family: 'Luckiest Guy', cursive;
         font-size: 1.2em;
+        font-size: 1em;
+        display: grid;
+        margin: 2px;
+    }
+
+}
+
+@media only screen and (max-width : 800px) {
+
+    .card {
+        font-family: 'Luckiest Guy', cursive;
+        font-size: 1.2em;
+        font-size: 1em;
+        display: grid;
+        margin: 2px;
     }
 
 }
