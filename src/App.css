@@ -20,6 +20,37 @@
   display: block;
 }
 
+.word {
+  padding: 1em;
+  margin: 1em;
+}
+
+.word.hidden {
+}
+
+p {
+  display: inline-block;
+
+}
+.revealed-BLUE {
+  background: darkslateblue;
+  color: white;
+}
+
+.revealed-RED {
+  background: salmon;
+  color: white;
+}
+
+.revealed-NEUTRAL {
+  background: lightslategray;
+  color: white;
+}
+
+.card {
+  cursor: pointer;
+}
+
 .player-card {
   display: inline-block;
   text-align: center;

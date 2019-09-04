@@ -1,95 +1,263 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useReducer, useRef } from "react";
+import {shuffle} from "shuffle-seed";
 
 import PeerManager, { roles } from "./peer.js";
 import "./App.css";
+import { EventEmitter } from "events";
+import Words from "./words.json";
 
-window.channels = {}
+window.channels = {};
+const myPlayerId = parseInt(Math.random() * 1000000000);
+
+const color = {BLUE: 'BLUE', RED: 'RED', NEUTRAL: 'NEUTRAL'}
+const ColorLabels = [
+  ...Array(7).fill().map(x=>color.BLUE),
+  ...Array(7).fill().map(x=>color.RED),
+  ...Array(10).fill().map(x=>color.NEUTRAL),
+]
+console.log(ColorLabels)
+const pickColors = seed => shuffle(ColorLabels.concat(shuffle([color.RED, color.BLUE], seed).slice(0,1)), seed);
+const pickBoard = seed => shuffle(Words, seed);
 
 function OfferArea(props) {
   const [offerDetails, setOfferDetails] = useState({});
+
   useEffect(() => {
-    console.log("New effect on OFerArea", props)
-    const offer = PeerManager.generateOffer();
+    const offer = PeerManager.generateOffer(props.role);
     offer.then(({ url, svg }) => {
-      console.log("Setting od for", props)
-      setOfferDetails({ url, svg, completed: false })
+      setOfferDetails({ url, svg, completed: false });
     });
 
     PeerManager.channelFrom(offer).then(c => {
-      setOfferDetails({completed: true});
-      props.onChannel(props.offerId, c)
+      setOfferDetails({ completed: true });
+      props.onChannel(props.offerId, c);
     });
 
-    return () => {
-      //PeerManager.cancel(offer)
-      console.log("TODO: logic to cancel offer / polling if any");
-    };
-  }, [props.offerId]);
-
-  let ret;
-  console.log("Renderin OA", offerDetails)
+    return () => {};
+  }, [props.offerId, props.role]);
 
   if (!offerDetails.completed) {
-    ret = <a target="_blank" rel="noopener noreferrer" href={offerDetails.url}>
-        {offerDetails.url && <img src={offerDetails.svg} alt="" className={props.className} />}
+    return (
+      <a target="_blank" rel="noopener noreferrer" href={offerDetails.url}>
+        {offerDetails.url && (
+          <img src={offerDetails.svg} alt="" className={props.className} />
+        )}
       </a>
+    );
   } else {
-   ret = <img className={props.className + " done"} src={props.offerImage} />
+    return <img className={props.className + " done"} src={props.offerImage} />;
   }
-
-
-  return ret;
 }
+
 function OfferApp() {
+  const [channels, setChannels] = useState({});
+  const externalEvents = useRef(new EventEmitter());
   const [channelMessage, setChannelMessage] = useState("");
   const [otherPlayersCount, setOtherPlayersCount] = useState(0);
-  const gotChannel = (offerId, c) => {
-    window.channels[offerId] = c
-    console.log("Got channel", c)
-    if (offerId > 1) {
-      setOtherPlayersCount(otherPlayersCount+1)
+  const seed = useRef(Math.random());
+
+  const broadcastAction = action => {
+    Object.values(channels).forEach(c => {
+      c.send(JSON.stringify(action));
+    });
+    if (action.playerId !== myPlayerId) {
+      externalEvents.current.emit("received", action);
     }
-  }
+  };
+
+  useEffect(() => {
+    Object.values(channels).forEach(
+      c =>
+        (c.onmessage = message => {
+          const action = JSON.parse(message.data);
+          broadcastAction(action);
+        })
+    );
+  }, [channels]);
+
+  const gotChannel = (offerId, c) => {
+    //TODO reuse broadcast mechanism
+    setTimeout(()=>{
+    c.send(JSON.stringify({
+      type: actions.PICK_SEED,
+      seed: seed.current
+    }))
+
+    }, 1000)
+    setChannels(channels => ({ ...channels, [offerId]: c }));
+    if (offerId > 1) {
+      setOtherPlayersCount(count => count + 1);
+    }
+  };
 
   return (
     <div className="App">
       <div className="player-card">
-        <OfferArea offerId={0} className="player-icon red" offerImage="assets/player.001.svg" onChannel={gotChannel} />
+        <OfferArea
+          offerId={0}
+          role="red-team"
+          className="player-icon red"
+          offerImage="assets/player.004.svg"
+          onChannel={gotChannel}
+        />
         Red Captain
       </div>
       <div className="player-card">
-        <OfferArea offerId={1} className="player-icon blue" offerImage="assets/player.002.svg" onChannel={gotChannel} />
+        <OfferArea
+          offerId={1}
+          role="blue-team"
+          className="player-icon blue"
+          offerImage="assets/player.005.svg"
+          onChannel={gotChannel}
+        />
         Blue Captain
       </div>
       <div className="player-card">
-        <OfferArea offerId={(2+otherPlayersCount)} className="player-icon" offerImage="assets/player.003.svg" onChannel={gotChannel} />
+        <OfferArea
+          offerId={2 + otherPlayersCount}
+          role="other-player"
+          className="player-icon"
+          offerImage="assets/player.003.svg"
+          onChannel={gotChannel}
+        />
         Other Players {otherPlayersCount > 0 && ` (${otherPlayersCount})`}
       </div>
       <div>
-
-      Response: <pre>{channelMessage}</pre>
+        Response: <pre>{channelMessage}</pre>
       </div>
+      <GameBoard
+        initialSeed={seed.current}
+        role={"other-player"}
+        broadcastAction={broadcastAction}
+        externalEvents={externalEvents.current}></GameBoard>
     </div>
   );
 }
 
+const actions = {
+  REVEAL_CARD: "REVEAL_CARD",
+  INITIALIZE: "INITIALIZE",
+  PICK_SEED: "PICK_SEED",
+};
+const initialGameState = {
+  turns: []
+};
+
+const answerRole = decodeURIComponent(window.location.hash.slice(1)).split(
+  ":"
+)[2];
+
 function AnswerApp() {
   const [channelMessage, setChannelMessage] = useState("");
+  const [connected, setConnected] = useState(false);
+  const externalEvents = useRef(new EventEmitter());
+
+  const [broadcastAction, setBroadcastAction] = useState({
+    current: action => true
+  });
+
   useEffect(() => {
     const answer = PeerManager.generateAnswer();
+    const store = {};
+    let channel = null;
+
     PeerManager.channelFrom(answer).then(c => {
+      setConnected(true);
+      channel = c;
+
+      c.onmessage = message => {
+        const action = JSON.parse(message.data);
+        setChannelMessage(JSON.stringify(action));
+        if (action.playerId !== myPlayerId) {
+          externalEvents.current.emit("received", action);
+        }
+      };
+
+      setBroadcastAction({
+        current: action => {
+          channel.send(JSON.stringify(action));
+        }
+      });
       window.channel = c;
-      c.onmessage = e => setChannelMessage(e.data);
     });
   }, []);
 
   return (
     <div className="App">
-      <pre>{channelMessage}</pre>
+      {connected && (
+        <GameBoard
+          role={answerRole}
+          externalEvents={externalEvents.current}
+          broadcastAction={broadcastAction.current}></GameBoard>
+      )}
     </div>
   );
 }
 
-const App = PeerManager.getRole() === roles.OFFER ? OfferApp : AnswerApp;
+const GameBoard = props => {
+  const [gameState, innerDispatch] = useReducer((state, action) => {
+    if (action.type === actions.INITIALIZE) {
+      return initialGameState;
+    } else if (action.type === actions.REVEAL_CARD) {
+      return {
+        ...state,
+        turns: state.turns.concat([action])
+      };
+    } else if (action.type === actions.PICK_SEED) {
+      return {
+        ...state,
+        seed: action.seed,
+        turns: []
+      }
+    }
+  }, initialGameState);
 
+  const seed = (props.initialSeed || gameState.seed)
+  const colors = pickColors(seed)
+  const words = pickBoard(seed).slice(0,25).map((w, i) => ({
+    word: w,
+    revealed: gameState.turns.some(t=>t.type === actions.REVEAL_CARD && t.word==w),
+    color: colors[i]
+  }))
+
+  useEffect(() => {
+    if (!props.externalEvents) return;
+
+    let listener = props.externalEvents.on("received", innerDispatch);
+    return () => props.externalEvents.off("received", innerDispatch);
+  }, [props.externalEvents]);
+
+  const dispatch = action => {
+    console.log("Gameboard sipatch", action, props);
+    props.broadcastAction && props.broadcastAction(action);
+    innerDispatch(action);
+  };
+
+  return (
+    <div>
+      Connected Games words:{" "}
+      {seed && words.map(({word, revealed, color}) => (
+        <p className="card"            onClick={e =>
+              dispatch({
+                type: actions.REVEAL_CARD,
+                playerRole: props.role,
+                playerId: myPlayerId,
+                word: word
+              })
+            } key={word}>
+          <span className={revealed ? `word revealed-${color}` : 'word hidden'}>
+          {word}
+          </span>
+        </p>
+      ))}
+      <p></p>
+      turns:{" "}
+      {gameState.turns.map(t => (
+        <p>{JSON.stringify(t)}</p>
+      ))}
+    </div>
+  );
+};
+
+const App = PeerManager.getRole() === roles.OFFER ? OfferApp : AnswerApp;
 export default App;

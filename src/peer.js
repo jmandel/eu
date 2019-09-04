@@ -56,7 +56,7 @@ export default {
     return outstandingChannels.get(req);
   },
 
-  generateOffer() {
+  generateOffer(role) {
     let generatePromise = new Promise(function(resolve, reject) {
       const offerConnection = new RTCPeerConnection(connectionConfig);
       const offerDataChannel = offerConnection.createDataChannel("c");
@@ -80,7 +80,7 @@ export default {
           mode: "cors",
           body: JSON.stringify(summary)
         }).then(posted => {
-          const peerUrl = `${window.location.href}#${offerId}:${answerId}`;
+          const peerUrl = `${window.location.href}#${offerId}:${answerId}:${role}`;
           resolve({
             url: peerUrl,
             svg: svg2url(qrcode(peerUrl))
@@ -122,7 +122,7 @@ export default {
   generateAnswer() {
     const generatePromise = new Promise(function(resolve, reject) {
 
-      const [offerId, answerId] = decodeURIComponent(
+      const [offerId, answerId, role] = decodeURIComponent(
         window.location.hash.slice(1)
       ).split(":");
 
