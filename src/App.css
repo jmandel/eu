@@ -1,3 +1,12 @@
+html, body, div#root, div.App, div.offer-area {
+  height: 100%;
+  min-height: 100%;
+}
+
+div.root {
+  position: relative;
+}
+
 .App {
   text-align: center;
 }
@@ -20,32 +29,39 @@
   display: block;
 }
 
-.word {
-  padding: 1em;
-  margin: 1em;
-}
-
-.word.hidden {
-}
-
 p {
   display: inline-block;
 
 }
-.revealed-BLUE {
+.card.revealed.BLUE, .card.revealed.spymaster.BLUE {
+  background: darkslateblue;
+  color: darkslateblue;
+}
+
+.card.revealed.RED, .card.revealed.spymaster.RED {
+  background: salmon;
+  color: salmon;
+}
+
+.card.revealed.NEUTRAL, .card.revealed.spymaster.NEUTRAL {
+  background: lightslategray;
+  color: lightslategray;
+}
+
+.card.BLUE.spymaster {
   background: darkslateblue;
   color: white;
 }
-
-.revealed-RED {
+.card.RED.spymaster {
   background: salmon;
   color: white;
 }
 
-.revealed-NEUTRAL {
+.card.NEUTRAL.spymaster {
   background: lightslategray;
   color: white;
 }
+
 
 .card {
   cursor: pointer;
@@ -104,4 +120,100 @@ p {
   to {
     transform: rotate(360deg);
   }
+}
+
+.card {
+  color: black;
+  background: white;
+  margin: 1em;
+  border-radius: 1em;
+    font-family: 'Luckiest Guy', cursive;
+    z-index: 5;
+    margin: auto;
+    padding: 5px;
+    font-size: 1.8em;
+    line-height: 1em;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-wrap: break-word;
+    margin: .5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid black;
+}
+
+
+.grid-container {
+    padding-left: 5px;
+    padding-right: 5px;
+    max-width: calc(100% - 40px);
+    display: grid;
+    box-sizing: border-box;
+    grid-gap: 10px;
+    grid-template-rows: 1em 1fr 1fr 1fr 1fr 1fr 1em;
+    grid-template-areas: "header header header header header" "c00 c01 c02 c03 c04" "c10 c11 c12 c13 c14" "c20 c21 c22 c23 c24" "c30 c31 c32 c33 c34" "c40 c41 c42 c43 c44" "footer footer footer footer footer";
+    grid-template-columns: 20% 20% 20% 20% 20%;
+    height: 100%;
+}
+
+.her {grid-area: header;}
+.c0 { grid-area: c00; }
+.c1 { grid-area: c01; }
+.c2 { grid-area: c02; }
+.c3 { grid-area: c03; }
+.c4 { grid-area: c04; }
+.c5 { grid-area: c10; }
+.c6 { grid-area: c11; }
+.c7 { grid-area: c12; }
+.c8 { grid-area: c13; }
+.c9 { grid-area: c14; }
+.c10 { grid-area: c20; }
+.c11 { grid-area: c21; }
+.c12 { grid-area: c22; }
+.c13 { grid-area: c23; }
+.c14 { grid-area: c24; }
+.c15 { grid-area: c30; }
+.c16 { grid-area: c31; }
+.c17 { grid-area: c32; }
+.c18 { grid-area: c33; }
+.c19 { grid-area: c34; }
+.c20 { grid-area: c40; }
+.c21 { grid-area: c41; }
+.c22 { grid-area: c42; }
+.c23 { grid-area: c43; }
+.c24 { grid-area: c44; }
+
+.footer { grid-area: footer; }
+
+.header { grid-area: header; }
+
+.inn {
+    font-family: 'Luckiest Guy', cursive;
+    font-size: .8em;
+}
+
+@media only screen and (max-width : 500px) {
+    .grid-container {
+        padding-left: 1px;
+        padding-right: 1px;
+        max-width: calc(100% - 20px);
+        max-height: 100%;
+        grid-gap: 0px;
+        grid-template-rows: 1em 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1em;
+        grid-template-columns: 100%;
+
+        grid-template-areas: "header" "c00" "c01" "c02" "c03" "c04" "c10" "c11" "c12" "c13" "c14" "c20" "c21" "c22" "c23" "c24" "c30" "c31" "c32" "c33" "c34" "c40" "c41" "c42" "c43" "c44" "footer";
+        background: red;
+    }
+    div.grid-container > div.w {
+        font-size: 1em;
+        display: grid;
+    }
+
+    .inn {
+        font-family: 'Luckiest Guy', cursive;
+        font-size: 1.2em;
+    }
+
 }

@@ -1,22 +1,34 @@
 import React, { useState, useEffect, useReducer, useRef } from "react";
-import {shuffle} from "shuffle-seed";
+import { shuffle } from "shuffle-seed";
 
 import PeerManager, { roles } from "./peer.js";
 import "./App.css";
 import { EventEmitter } from "events";
 import Words from "./words.json";
 
+const debug = false;
+
 window.channels = {};
 const myPlayerId = parseInt(Math.random() * 1000000000);
 
-const color = {BLUE: 'BLUE', RED: 'RED', NEUTRAL: 'NEUTRAL'}
+const color = { BLUE: "BLUE", RED: "RED", NEUTRAL: "NEUTRAL" };
 const ColorLabels = [
-  ...Array(7).fill().map(x=>color.BLUE),
-  ...Array(7).fill().map(x=>color.RED),
-  ...Array(10).fill().map(x=>color.NEUTRAL),
-]
-console.log(ColorLabels)
-const pickColors = seed => shuffle(ColorLabels.concat(shuffle([color.RED, color.BLUE], seed).slice(0,1)), seed);
+  ...Array(7)
+    .fill()
+    .map(x => color.BLUE),
+  ...Array(7)
+    .fill()
+    .map(x => color.RED),
+  ...Array(10)
+    .fill()
+    .map(x => color.NEUTRAL)
+];
+console.log(ColorLabels);
+const pickColors = seed =>
+  shuffle(
+    ColorLabels.concat(shuffle([color.RED, color.BLUE], seed).slice(0, 1)),
+    seed
+  );
 const pickBoard = seed => shuffle(Words, seed);
 
 function OfferArea(props) {
@@ -77,13 +89,14 @@ function OfferApp() {
 
   const gotChannel = (offerId, c) => {
     //TODO reuse broadcast mechanism
-    setTimeout(()=>{
-    c.send(JSON.stringify({
-      type: actions.PICK_SEED,
-      seed: seed.current
-    }))
-
-    }, 1000)
+    setTimeout(() => {
+      c.send(
+        JSON.stringify({
+          type: actions.PICK_SEED,
+          seed: seed.current
+        })
+      );
+    }, 1000);
     setChannels(channels => ({ ...channels, [offerId]: c }));
     if (offerId > 1) {
       setOtherPlayersCount(count => count + 1);
@@ -92,38 +105,37 @@ function OfferApp() {
 
   return (
     <div className="App">
-      <div className="player-card">
-        <OfferArea
-          offerId={0}
-          role="red-team"
-          className="player-icon red"
-          offerImage="assets/player.004.svg"
-          onChannel={gotChannel}
-        />
-        Red Captain
-      </div>
-      <div className="player-card">
-        <OfferArea
-          offerId={1}
-          role="blue-team"
-          className="player-icon blue"
-          offerImage="assets/player.005.svg"
-          onChannel={gotChannel}
-        />
-        Blue Captain
-      </div>
-      <div className="player-card">
-        <OfferArea
-          offerId={2 + otherPlayersCount}
-          role="other-player"
-          className="player-icon"
-          offerImage="assets/player.003.svg"
-          onChannel={gotChannel}
-        />
-        Other Players {otherPlayersCount > 0 && ` (${otherPlayersCount})`}
-      </div>
-      <div>
-        Response: <pre>{channelMessage}</pre>
+      <div className="offer-lkk">
+        <div className="player-card">
+          <OfferArea
+            offerId={0}
+            role="red-team"
+            className="player-icon red"
+            offerImage="assets/player.004.svg"
+            onChannel={gotChannel}
+          />
+          Red Captain
+        </div>
+        <div className="player-card">
+          <OfferArea
+            offerId={1}
+            role="blue-team"
+            className="player-icon blue"
+            offerImage="assets/player.005.svg"
+            onChannel={gotChannel}
+          />
+          Blue Captain
+        </div>
+        <div className="player-card">
+          <OfferArea
+            offerId={2 + otherPlayersCount}
+            role="other-player"
+            className="player-icon"
+            offerImage="assets/player.003.svg"
+            onChannel={gotChannel}
+          />
+          Other Players {otherPlayersCount > 0 && ` (${otherPlayersCount})`}
+        </div>
       </div>
       <GameBoard
         initialSeed={seed.current}
@@ -137,7 +149,7 @@ function OfferApp() {
 const actions = {
   REVEAL_CARD: "REVEAL_CARD",
   INITIALIZE: "INITIALIZE",
-  PICK_SEED: "PICK_SEED",
+  PICK_SEED: "PICK_SEED"
 };
 const initialGameState = {
   turns: []
@@ -208,17 +220,25 @@ const GameBoard = props => {
         ...state,
         seed: action.seed,
         turns: []
-      }
+      };
     }
   }, initialGameState);
 
-  const seed = (props.initialSeed || gameState.seed)
-  const colors = pickColors(seed)
-  const words = pickBoard(seed).slice(0,25).map((w, i) => ({
-    word: w,
-    revealed: gameState.turns.some(t=>t.type === actions.REVEAL_CARD && t.word==w),
-    color: colors[i]
-  }))
+  const [spymaster, setSpymaster] = useState(false)
+
+  const seed = props.initialSeed || gameState.seed;
+  const colors = pickColors(seed);
+  const words = pickBoard(seed)
+    .slice(0, 25)
+    .map((w, i) => ({
+      word: w,
+      revealed: gameState.turns.some(
+        t => t.type === actions.REVEAL_CARD && t.word == w
+      ),
+      color: colors[i]
+    }));
+
+    console.log("W", words)
 
   useEffect(() => {
     if (!props.externalEvents) return;
@@ -234,27 +254,34 @@ const GameBoard = props => {
   };
 
   return (
-    <div>
-      Connected Games words:{" "}
-      {seed && words.map(({word, revealed, color}) => (
-        <p className="card"            onClick={e =>
+    <div className="grid-container">
+      <div className="header">
+        <button onClick={e => setSpymaster(!spymaster)}>{spymaster? "Player View" : "Spymaster View"}</button>
+      </div>
+      {seed &&
+        words.map(({ word, revealed, color }, i) => (
+          <p
+            className={`card ${color} c${i} ${
+              revealed ? "revealed" : "hidden"
+            }
+            ${
+              spymaster ? 'spymaster' : 'non-spymaster'
+            }
+            `}
+            onClick={e =>
               dispatch({
                 type: actions.REVEAL_CARD,
                 playerRole: props.role,
                 playerId: myPlayerId,
                 word: word
               })
-            } key={word}>
-          <span className={revealed ? `word revealed-${color}` : 'word hidden'}>
-          {word}
-          </span>
-        </p>
-      ))}
+            }
+            key={word}>
+            <span>{word}</span>
+          </p>
+        ))}
       <p></p>
-      turns:{" "}
-      {gameState.turns.map(t => (
-        <p>{JSON.stringify(t)}</p>
-      ))}
+      {debug && gameState.turns.map(t => <p>{JSON.stringify(t)}</p>)}
     </div>
   );
 };
