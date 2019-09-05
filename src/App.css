@@ -11,6 +11,19 @@ div.root {
   text-align: center;
 }
 
+button {
+  color: black;
+  background: white;
+  margin-left: .5em;
+  margin-right: .5em;
+  border: 1px solid black;
+}
+
+button:hover {
+  background: lightblue;
+  cursor: pointer;
+}
+
 .player-icon {
   border: 1vw dotted lightslategray;
   width: 28vw;

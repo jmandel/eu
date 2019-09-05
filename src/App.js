@@ -81,7 +81,7 @@ function OfferApp() {
       try {
         c.send(JSON.stringify(action));
       } catch {
-        console.log("Failed to send", action, c)
+        console.log("Failed to send", action, c);
       }
     });
     if (action.playerId !== myPlayerId) {
@@ -150,7 +150,7 @@ function OfferApp() {
             Other Players {otherPlayersCount > 0 && ` (${otherPlayersCount})`}
           </div>
           <div>
-          <button onClick={e => setStarted(true)}>Start Game</button>
+            <button onClick={e => setStarted(true)}>Start Game</button>
           </div>
         </div>
       )}
@@ -235,6 +235,7 @@ const GameBoard = props => {
         turns: state.turns.concat([action])
       };
     } else if (action.type === actions.PICK_SEED) {
+      console.log("Picked seed", action)
       return {
         ...state,
         seed: action.seed,
@@ -245,7 +246,7 @@ const GameBoard = props => {
 
   const [spymaster, setSpymaster] = useState(false);
 
-  const seed = props.initialSeed || gameState.seed;
+  const seed = gameState.seed || props.initialSeed;
   const colors = pickColors(seed);
   const words = pickBoard(seed)
     .slice(0, 25)
@@ -257,27 +258,33 @@ const GameBoard = props => {
       color: colors[i]
     }));
 
-  const colorOfWord = word => words.filter(w => w.word === word).map(w => w.color)[0]
+  const colorOfWord = word =>
+    words.filter(w => w.word === word).map(w => w.color)[0];
 
-  const wordStreaks = gameState.turns.
-  filter(t => t.type===actions.REVEAL_CARD)
-  .map(t => ({...t, color: colorOfWord(t.word)}))
-  .reduce((streaks, {word, color}) => {
-    const currentStreak = (streaks.length > 0) ? (streaks[streaks.length - 1][0].color) : "START"
-    if (color === currentStreak){
-      streaks[streaks.length - 1].push({word, color})
-    } else {
-      streaks.push([{word, color}])
-    }
-    return streaks
-  }, []);
+  const wordStreaks = gameState.turns
+    .filter(t => t.type === actions.REVEAL_CARD)
+    .map(t => ({ ...t, color: colorOfWord(t.word) }))
+    .reduce((streaks, { word, color }) => {
+      const currentStreak =
+        streaks.length > 0 ? streaks[streaks.length - 1][0].color : "START";
+      if (color === currentStreak) {
+        streaks[streaks.length - 1].push({ word, color });
+      } else {
+        streaks.push([{ word, color }]);
+      }
+      return streaks;
+    }, []);
 
-  const minus1 = (wordStreaks.length > 0 ? wordStreaks[wordStreaks.length-1] : [])
-    .map(w => w.word);
-  const minus2 = (wordStreaks.length > 1 ? wordStreaks[wordStreaks.length-2] : [])
-  .map(w => w.word);
+  const minus1 = (wordStreaks.length > 0
+    ? wordStreaks[wordStreaks.length - 1]
+    : []
+  ).map(w => w.word);
+  const minus2 = (wordStreaks.length > 1
+    ? wordStreaks[wordStreaks.length - 2]
+    : []
+  ).map(w => w.word);
 
-  console.log(minus1, minus2)
+  console.log(minus1, minus2);
 
   useEffect(() => {
     if (!props.externalEvents) return;
@@ -295,6 +302,12 @@ const GameBoard = props => {
   return (
     <div className="grid-container">
       <div className="header">
+        <button onClick={e => dispatch({
+          type: actions.PICK_SEED,
+          seed: Math.random()
+        })}>
+        Start New Game
+        </button>
         <button onClick={e => setSpymaster(!spymaster)}>
           {spymaster ? "Player View" : "Spymaster View"}
         </button>
@@ -304,7 +317,7 @@ const GameBoard = props => {
           <p
             className={`card ${color} c${i} ${revealed ? "revealed" : "hidden"}
             ${spymaster ? "spymaster" : "non-spymaster"}
-            ${ minus1.includes(word) ? "minus1" : ""}
+            ${minus1.includes(word) ? "minus1" : ""}
             ${minus2.includes(word) ? "minus2" : ""}
             `}
             onClick={e =>
