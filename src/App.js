@@ -8,6 +8,10 @@ import Words from "./words.json";
 
 const debug = false;
 
+if (window.location.href.match("http://joshuamandel.com")) {
+  window.location.href = window.location.href.replace("http://", "https://")
+}
+
 window.channels = {};
 const myPlayerId = parseInt(Math.random() * 1000000000);
 
