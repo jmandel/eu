@@ -78,7 +78,11 @@ function OfferApp() {
 
   const broadcastAction = action => {
     Object.values(channels).forEach(c => {
-      c.send(JSON.stringify(action));
+      try {
+        c.send(JSON.stringify(action));
+      } catch {
+        console.log("Failed to send", action, c)
+      }
     });
     if (action.playerId !== myPlayerId) {
       externalEvents.current.emit("received", action);
@@ -145,7 +149,9 @@ function OfferApp() {
             />
             Other Players {otherPlayersCount > 0 && ` (${otherPlayersCount})`}
           </div>
+          <div>
           <button onClick={e => setStarted(true)}>Start Game</button>
+          </div>
         </div>
       )}
       {started && (
