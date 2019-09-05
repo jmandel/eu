@@ -33,6 +33,17 @@ p {
   display: inline-block;
 
 }
+.card.revealed.minus1 .word{
+  color: white;
+  opacity: 0.2;
+  text-shadow: 0 0 .3vh black;
+}
+
+.card.revealed.minus2 .word{
+  opacity: 0.3;
+  text-shadow: 0 0 1vh black;
+}
+
 .card.revealed.BLUE, .card.revealed.spymaster.BLUE {
   background: darkslateblue;
   color: darkslateblue;

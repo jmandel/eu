@@ -257,7 +257,27 @@ const GameBoard = props => {
       color: colors[i]
     }));
 
-  console.log("W", words);
+  const colorOfWord = word => words.filter(w => w.word === word).map(w => w.color)[0]
+
+  const wordStreaks = gameState.turns.
+  filter(t => t.type===actions.REVEAL_CARD)
+  .map(t => ({...t, color: colorOfWord(t.word)}))
+  .reduce((streaks, {word, color}) => {
+    const currentStreak = (streaks.length > 0) ? (streaks[streaks.length - 1][0].color) : "START"
+    if (color === currentStreak){
+      streaks[streaks.length - 1].push({word, color})
+    } else {
+      streaks.push([{word, color}])
+    }
+    return streaks
+  }, []);
+
+  const minus1 = (wordStreaks.length > 0 ? wordStreaks[wordStreaks.length-1] : [])
+    .map(w => w.word);
+  const minus2 = (wordStreaks.length > 1 ? wordStreaks[wordStreaks.length-2] : [])
+  .map(w => w.word);
+
+  console.log(minus1, minus2)
 
   useEffect(() => {
     if (!props.externalEvents) return;
@@ -284,6 +304,8 @@ const GameBoard = props => {
           <p
             className={`card ${color} c${i} ${revealed ? "revealed" : "hidden"}
             ${spymaster ? "spymaster" : "non-spymaster"}
+            ${ minus1.includes(word) ? "minus1" : ""}
+            ${minus2.includes(word) ? "minus2" : ""}
             `}
             onClick={e =>
               dispatch({
@@ -294,7 +316,7 @@ const GameBoard = props => {
               })
             }
             key={word}>
-            <span>{word}</span>
+            <span className="word">{word}</span>
           </p>
         ))}
       <p></p>
