@@ -9,7 +9,7 @@ import Words from "./words.json";
 const debug = false;
 
 if (window.location.href.match("http://joshuamandel.com")) {
-  window.location.href = window.location.href.replace("http://", "https://")
+  window.location.href = window.location.href.replace("http://", "https://");
 }
 
 window.channels = {};
@@ -50,7 +50,7 @@ function OfferArea(props) {
     });
 
     return () => {
-      console.log("Cleanup", props)
+      console.log("Cleanup", props);
       PeerManager.cancelOffer(offer);
     };
   }, [props.offerId, props.role]);
@@ -97,14 +97,14 @@ function OfferApp() {
 
   const gotChannel = (offerId, c) => {
     //TODO reuse broadcast mechanism
-    setTimeout(() => {
+    c.onopen = () =>
       c.send(
         JSON.stringify({
           type: actions.PICK_SEED,
           seed: seed.current
         })
       );
-    }, 1000);
+
     setChannels(channels => ({ ...channels, [offerId]: c }));
     if (offerId > 1) {
       setOtherPlayersCount(count => count + 1);
