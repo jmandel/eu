@@ -57,6 +57,11 @@ p {
   text-shadow: 0 0 1vh black;
 }
 
+.card.revealed.BLACK, .card.revealed.spymaster.BLACK {
+  background: black;
+  color: black;
+}
+
 .card.revealed.BLUE, .card.revealed.spymaster.BLUE {
   background: darkslateblue;
   color: darkslateblue;
@@ -70,6 +75,11 @@ p {
 .card.revealed.NEUTRAL, .card.revealed.spymaster.NEUTRAL {
   background: lightslategray;
   color: lightslategray;
+}
+
+.card.BLACK.spymaster {
+  background: black;
+  color: white;
 }
 
 .card.BLUE.spymaster {
@@ -149,7 +159,6 @@ p {
 .card {
   color: black;
   background: white;
-  border-radius: 1em;
     font-family: 'Libre Franklin', cursive;
     font-weight: 700;
     z-index: 5;
@@ -164,7 +173,7 @@ p {
     justify-content: center;
     align-items: center;
     border: 1px solid black;
-    border-radius: .8vw;
+    border-radius: .4vw;
     text-transform: uppercase;
 }
 

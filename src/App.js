@@ -15,19 +15,20 @@ if (window.location.href.match("http://joshuamandel.com")) {
 window.channels = {};
 const myPlayerId = parseInt(Math.random() * 1000000000);
 
-const color = { BLUE: "BLUE", RED: "RED", NEUTRAL: "NEUTRAL" };
+const color = { BLUE: "BLUE", RED: "RED", NEUTRAL: "NEUTRAL", BLACK: "BLACK" };
 const ColorLabels = [
+  color.BLACK,
   ...Array(7)
     .fill()
     .map(x => color.BLUE),
   ...Array(7)
     .fill()
     .map(x => color.RED),
-  ...Array(10)
+  ...Array(9)
     .fill()
     .map(x => color.NEUTRAL)
 ];
-console.log(ColorLabels);
+
 const pickColors = seed =>
   shuffle(
     ColorLabels.concat(shuffle([color.RED, color.BLUE], seed).slice(0, 1)),
@@ -284,7 +285,7 @@ const GameBoard = props => {
     : []
   ).map(w => w.word);
 
-  console.log(minus1, minus2);
+  console.log(colors);
 
   useEffect(() => {
     if (!props.externalEvents) return;
