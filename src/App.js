@@ -307,7 +307,7 @@ const GameBoard = props => {
           type: actions.PICK_SEED,
           seed: Math.random()
         })}>
-        Start New Game
+        Deal New Cards
         </button>
         <button onClick={e => setSpymaster(!spymaster)}>
           {spymaster ? "Player View" : "Spymaster View"}

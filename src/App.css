@@ -46,15 +46,17 @@ p {
   display: inline-block;
 
 }
-.card.revealed.minus1 .word{
+.card.revealed .word{
   color: white;
   opacity: 0.2;
   text-shadow: 0 0 .3vh black;
 }
 
-.card.revealed.minus2 .word{
-  opacity: 0.3;
+.card.revealed.minus1 {
+  color: yellow;
   text-shadow: 0 0 1vh black;
+  box-shadow: 0px 0px .7vh .1vh yellow;
+
 }
 
 .card.revealed.BLACK, .card.revealed.spymaster.BLACK {
