@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   sodipodi:docname="card.svg"
+   inkscape:version="1.0alpha2 (1:0.92.0+devel+201908061802+647a8ee)"
+   id="svg8"
+   version="1.1"
+   viewBox="0 0 120 70"
+   >
+  <g
+     id="layer1"
+     inkscape:groupmode="layer"
+     inkscape:label="Layer 1">
+    <g
+       transform="translate(-1.7880481,-1.0948867)"
+       id="g860">
+      <rect
+         style="opacity:1;vector-effect:none;fill-opacity:1;stroke:none;stroke-width:1.06483;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.391586"
+         class="card"
+         id="rect835"
+         width="120"
+         height="70"
+         x="1.7880462"
+         y="1.0948864"
+         ry="9.2747412" />
+      <path
+         d="M 121.78805,35.039949 83.741896,71.094887 h 29.524644 c 4.72097,0 8.52151,-4.136442 8.52151,-9.27465 z"
+         style="opacity:1;vector-effect:none;fill-opacity:1;stroke:none;stroke-width:1.06483;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.391586"
+         class="corner"
+         id="rect835-3"
+         inkscape:connector-curvature="0" />
+    </g>
+  </g>
+</svg>
